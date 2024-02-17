@@ -3,6 +3,7 @@ const Response = require("../models/response");
 const Book = require("../models/book");
 
 const getUserBooks = async (req, res) => {
+    console.log('BEGIN GET USER BOOKS');
     let response = new Response (false, 200, "Éxito en el proceso de devolver libros", null);
     try{
         let sql = "SELECT * FROM book WHERE id_user = '" + req.params.id_user + "'";

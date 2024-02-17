@@ -9,7 +9,7 @@ const createUser = async (req, res) => {
                         req.body.last_name,
                         req.body.email, 
                         req.body.photo, 
-                        null);
+                        req.body.password);
     try{
         let sqlEmail = "SELECT email FROM user WHERE email = '" + user.email + "'";
         let [checkEmail] = await pool.query(sqlEmail);
@@ -27,6 +27,7 @@ const createUser = async (req, res) => {
             let sqlUser = "SELECT id_user FROM user WHERE email = '" + user.email + "'";
             let [userId] = await pool.query(sqlUser);
             user.id_user = userId[0].id_user;
+            user.password = null;
             response.data = user;
         }
         res.send(response);
