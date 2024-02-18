@@ -4,45 +4,46 @@ const Book = require("../models/book");
 
 const getUserBooks = async (req, res) => {
     let response = new Response (false, 200, "Éxito en el proceso de devolver libros", null);
-    try{
-        let sql = "SELECT * FROM book WHERE id_user = '" + req.query.id_user + "'";
-        let [result] = await pool.query(sql);
-        if(result.length) {
-            response.data = result; 
-        }else{
-            response.err = true;
-            response.message = "Fallo en el proceso de devolver libros"
-            response.code = 400; 
-        }
-        res.send(response);
-    }catch(err){
-        console.log(err);
-        response.err = true;
-        response.message = "Fallo en el proceso de devolver libros"
-        response.code = 400; 
-        res.send(response);
-    }
-}
-
-const getUserBook = async (req, res) => {
-    let response = new Response (false, 200, "Éxito en el proceso de devolver libro", null);
-    try{
-        let sql = "SELECT * FROM book WHERE id_user = " + req.query.id_user + " AND id_book = '" + req.query.id_book + "'";
-        let [result] = await pool.query(sql);
-        if(result.length){
-            response.data = result;
-        }else{
+    if(req.query.id_book){
+        try{
+            let sql = "SELECT * FROM book WHERE id_user = " + req.query.id_user + " AND id_book = '" + req.query.id_book + "'";
+            let [result] = await pool.query(sql);
+            if(result.length){
+                response.data = result;
+                console.log(result);
+                response.message = "Éxito en el proceso de devolver libro";
+            }else{
+                response.err = true; 
+                response.message = "No existe un libro con este id";
+                response.code = 404; 
+            }
+            res.send(response);
+        }catch(err){
+            console.error(err);
             response.err = true; 
             response.message = "Fallo en el proceso de devolver libro";
             response.code = 400; 
+            res.send(response);
         }
-        res.send(response);
-    }catch(err){
-        console.error(err);
-        response.err = true; 
-        response.message = "Fallo en el proceso de devolver libro";
-        response.code = 400; 
-        res.send(response);
+    } else {
+        try{
+            let sql = "SELECT * FROM book WHERE id_user = '" + req.query.id_user + "'";
+            let [result] = await pool.query(sql);
+            if(result.length) {
+                response.data = result; 
+            }else{
+                response.err = true;
+                response.message = "Fallo en el proceso de devolver libros"
+                response.code = 400; 
+            }
+            res.send(response);
+        }catch(err){
+            console.log(err);
+            response.err = true;
+            response.message = "Fallo en el proceso de devolver libros"
+            response.code = 400; 
+            res.send(response);
+        }
     }
 }
 
@@ -75,7 +76,7 @@ const createBook = async (req, res) => {
 }
 
 const updateBook = async (req, res) => {
-    let response = new Response(false, 200, "Libro creado con éxito", null);
+    let response = new Response(false, 200, "Libro modificado con éxito", null);
     let book = new Book(req.body.id_book, 
         req.body.id_user, 
         req.body.title, 
@@ -129,8 +130,7 @@ const deleteBook = async (req, res) => {
     }
 }
 
-module.exports = { getUserBooks, 
-                getUserBook,
+module.exports = { getUserBooks,
                 createBook,
                 updateBook,
                 deleteBook

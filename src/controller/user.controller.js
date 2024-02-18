@@ -36,7 +36,7 @@ const createUser = async (req, res) => {
     }
 }
 
-const login = async (req, res) => {
+const login = async (req, res) =>{
     let response = new Response(false, 200, "Login correcto", null);
     try{
         let sql = "SELECT * FROM user WHERE user.email = '" + req.body.email + "' AND user.password = '" + req.body.password + "'";
@@ -54,4 +54,49 @@ const login = async (req, res) => {
     }
 }
 
-module.exports = { createUser, login }
+const updateUser = async(req, res) =>{
+    let response = new Response(false, 200, "Usuario modificado", null);
+    let user = new User(req.body.id_user, 
+        req.body.name, 
+        req.body.last_name,
+        req.body.email, 
+        req.body.photo, 
+        null);
+    try{
+        let sqlEmail = "SELECT email FROM user WHERE email = '" + user.email + "' and id_user != " + user.id_user;
+        let [checkEmail] = await pool.query(sqlEmail);
+        if(checkEmail.length){
+            response.err = true;
+            response.message = 'Ya existe un usuario con este email';
+        } else {
+            let params =  [
+                user.name,
+                user.last_name, 
+                user.email,
+                user.photo,
+                user.id_user
+            ];
+            let sql = "UPDATE user SET  " +
+            "name = COALESCE(?, name), " +
+            "last_name = COALESCE (?, last_name), " +
+            "email = COALESCE(?, email), " +
+            "photo = COALESCE(?, photo) WHERE " +
+            "id_user = ?"; 
+            let [result] = await pool.query(sql, params);
+            console.log(result);
+            response.data = user;
+            res.send(response);
+        }
+    }catch(err){
+        console.error(err);
+        response.message = "Fallo al intentar modificar el usuario";
+        response.code = 400; 
+        response.err = true; 
+        res.send(response);
+    }
+}
+
+
+
+
+module.exports = { createUser, login, updateUser }
