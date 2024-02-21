@@ -118,7 +118,7 @@ const updateBook = async (req, res) => {
 const deleteBook = async (req, res) => {
     let response = new Response(false, 200, "Libro eliminado con éxito", null);
     try{
-        let sql = "DELETE FROM book WHERE id_book = " + req.query.id_book;
+        let sql = "DELETE FROM book WHERE id_book = " + req.body.id_book;
         let[result] = await pool.query(sql);
         res.send(response);
     }catch(err){
